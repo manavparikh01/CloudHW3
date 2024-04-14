@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Search and Upload</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input, button { margin-top: 10px; }
+    </style>
+
+<script src="./sdk-api2/lib/axios/dist/axios.standalone.js"></script>
+<script src="./sdk-api2/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+<script src="./sdk-api2/lib/CryptoJS/rollups/sha256.js"></script>
+<script src="./sdk-api2/lib/CryptoJS/components/hmac.js"></script>
+<script src="./sdk-api2/lib/CryptoJS/components/enc-base64.js"></script>
+<script src="./sdk-api2/lib/url-template/url-template.js"></script>
+<script src="./sdk-api2/lib/apiGatewayCore/sigV4Client.js"></script>
+<script src="./sdk-api2/lib/apiGatewayCore/apiGatewayClient.js"></script>
+<script src="./sdk-api2/lib/apiGatewayCore/simpleHttpClient.js"></script>
+<script src="./sdk-api2/lib/apiGatewayCore/utils.js"></script>
+
+<script src="./sdk-api2/apigClient.js"></script>
+
+<script src="./aws-sdk.min.js"></script>
+</head>
+<body>
+    <h1>Photo Search and Upload</h1>
+
+    <div>
+        <h2>Search Photos</h2>
+        <input type="text" id="searchQuery" placeholder="Enter search term...">
+        <button onclick="searchPhotos()">Search</button>
+        <div id="searchResults"></div>
+    </div>
+
+    <div>
+        <h2>Upload Photo</h2>
+        <input type="file" id="photoUpload" accept="image/*">
+        <input type="text" id="customLabels" placeholder="Enter custom labels, comma separated">
+        <button onclick="uploadPhoto()">Upload</button>
+    </div>
+
+    <!-- <script src="path/to/aws-api-gateway-sdk.js"></script> -->
+    <script src="app.js"></script>
+</body>
+</html>
