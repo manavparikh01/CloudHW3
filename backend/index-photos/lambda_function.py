@@ -23,15 +23,7 @@ es_index = 'photos'
 
 credentials = boto3.Session().get_credentials()
 awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, 'es', session_token=credentials.token)
-#master_username = os.environ['MASTER_USERNAME']  # Environment variable for the master user's username
-#master_password = os.environ['MASTER_PASSWORD']  # Environment variable for the master user's password
-#auth = (master_username, master_password)
-#awsauth = AWSRequestsAuth(aws_access_key='AKIATCKAPJWKJX6P6YPC',
-               #       aws_secret_access_key='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',
-                    ##  aws_host=host,
-                    #  aws_region='us-east-1',
-                    #  aws_service='es')
-#auth = ('Madhurimhw3','x40Q6$U_')
+
 es = OpenSearch(
     hosts=[{'host': host, 'port': 443}],
     http_auth=awsauth,
@@ -44,18 +36,23 @@ def lambda_handler(event, context):
     try:
         bucket_name = event['Records'][0]['s3']['bucket']['name']
         object_key = event['Records'][0]['s3']['object']['key']
+        event_time = event['Records'][0]['eventTime'] 
         logger.info(f"Processing file: {object_key} in bucket: {bucket_name}")
         
         response = s3_client.head_object(Bucket=bucket_name, Key=object_key)
         #json.loads
-        custom_labels = response.get('Metadata', {}).get('customlabels', '[]')
+        custom_labels_str = response.get('Metadata', {}).get('customlabels', '')
+        custom_labels_str = custom_labels_str.lower()
+        custom_labels = custom_labels_str.split(',') if custom_labels_str else []
+        
         
         rekognition_response = rekognition_client.detect_labels(
             Image={'S3Object': {'Bucket': bucket_name, 'Name': object_key}},
             MaxLabels=10
         )
         
-        detected_labels = [label['Name'] for label in rekognition_response['Labels']]
+        
+        detected_labels = [label['Name'].lower() for label in rekognition_response['Labels']]
         print(detected_labels )
         labels = list(set(custom_labels + detected_labels))
         print(labels)
@@ -64,7 +61,7 @@ def lambda_handler(event, context):
         doc = {
             'objectKey': object_key,
             'bucket': bucket_name,
-            'createdTimestamp': datetime.now().isoformat(),
+            'createdTimestamp': event_time,
             'labels': labels
         }
         

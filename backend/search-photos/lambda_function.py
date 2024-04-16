@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     if 'queryStringParameters' in event:
         # Access the 'q' parameter from 'queryStringParameters'
         q = event['queryStringParameters']['q']
-        print("query", q)
+        print("query", q.lower())
         labels = get_labels(q)
         print("labels", labels)
         # Now 'q' contains the value of the 'q' query parameter
