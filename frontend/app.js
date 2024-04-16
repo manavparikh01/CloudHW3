@@ -1,72 +1,107 @@
-function searchPhotos() {
-    const query = document.getElementById('searchQuery').value;
-    const resultDiv = document.getElementById('searchResults');
 
-    // Clear previous results
-    resultDiv.innerHTML = '';
+function textSearch() {
+    var searchText = document.getElementById('search_query');
+    if (!searchText.value) {
+        alert('Please enter a valid text or voice input!');
+    } else {
+        searchText = searchText.value.trim().toLowerCase();
+        console.log('Searching Photos....');
+        searchPhotos(searchText);
+    }
+    
+}
 
-    // Assuming 'apigClient' is from the AWS API Gateway-generated SDK
+function searchPhotos(searchText) {
+    console.log(searchText);
+    document.getElementById('search_query').value = searchText;
+    document.getElementById('photos_search_results').innerHTML = "<h4 style=\"text-align:center\">";
+
+    var params = {
+        'q': searchText
+    };
+
+    var additionalParams = {
+        headers: {
+            'x-api-key': '6CMczQa7eN7h4a70uBTAP157xzqmBj8B3pVBGZ22'
+        }
+    };
     var apigClient = apigClientFactory.newClient({
         apiKey: '6CMczQa7eN7h4a70uBTAP157xzqmBj8B3pVBGZ22'
     });
-    const params = {
-        q: query // This is how you pass query parameters
-    };
 
-    print(query)
-
-    apigClient.searchGet(params, {}, {})
-        .then(function (response) {
-            // Success handling
-            const photos = response.data.results;
-            console.log(photos)
-            photos.forEach(photo => {
-                const imgElement = document.createElement('img');
-                imgElement.src = photo;
-                imgElement.style.width = '100px';
-                resultDiv.appendChild(imgElement);
-                console.log(resultDiv)
+    apigClient.searchGet(params, {}, additionalParams)
+        .then(function(result) {
+            console.log("Search results:", result);
+            var photos = result.data.results;
+            var photosDiv = document.getElementById("photos_search_results");
+            photosDiv.innerHTML = "";  
+            photos.forEach(function(photo) {
+                photosDiv.innerHTML += '<figure><img src="' + photo + '" style="width:100px"></figure>';
             });
-        }).catch(function (error) {
-            // Error handling
-            console.error('Search failed:', error);
-            resultDiv.innerHTML = 'Search failed. See console for details.';
+        }).catch(function(result) {
+            var photosDiv = document.getElementById("photos_search_results");
+            photosDiv.innerHTML = "No Photos Found!";
+            console.log(result);
         });
 }
 
 function uploadPhoto() {
-    const photoFile = document.getElementById('photoUpload').files[0];
-    const customLabels = document.getElementById('customLabels').value;
-    console.log("heeh")
+ 
+    var file = document.getElementById('uploaded_file').files[0];
+    if (!file) {
+        alert("Please select a file to upload.");
+        return;
+    }
+   
+   
+    var customLabelsInput = document.getElementById('custom_labels').value;
+   
+    var customLabels = customLabelsInput.split(',')
+                                         .map(label => label.trim())
+                                         .filter(label => label.length > 0) // Filters out empty strings
+                                         .join(','); // This will be an empty string if no valid labels are provided
+
     console.log(customLabels)
-    const headers = {
-        'Content-Type': "image/jpg",
+
+    var headers = {
+        'Content-Type': "image/" + file.name.split('.').pop(),
         'x-amz-meta-customLabels': customLabels,
         'x-api-key': '6CMczQa7eN7h4a70uBTAP157xzqmBj8B3pVBGZ22'
     };
-    console.log("heeh 1")
-    //const blob = new Blob([photoFile])
-    const reader = new FileReader();
 
-    reader.readAsArrayBuffer(photoFile);
-    console.log("heeh 2")
+
+    var reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+
+/*
     reader.onload = function () {
         const arrayBuffer = reader.result;
-        //const blob = new Blob([arrayBuffer], { type: 'image/jpg'});
+       
         const apigClient = apigClientFactory.newClient();
         const additionalParams = {
             headers: headers
         };
-        console.log("heeh 3")
         console.log(arrayBuffer)
-        // Example assumes your API client expects an object key to be part of the path
-        apigClient.uploadObjectPut({object: photoFile.name, 'x-amz-meta-customLabels': customLabels}, arrayBuffer, additionalParams)
+        
+        apigClient.uploadObjectPut({object: photoFile.name, 'x-amz-meta-customlabels': customLabels}, arrayBuffer, additionalParams)
             .then(function (response) {
-                console.log("heeh 4")
+                console.log("Upload successful:", result);
                 alert('Upload successful!');
             }).catch(function (error) {
                 console.error('Upload failed:', error);
                 alert('Upload failed. See console for details.');
             });
     };
+    */
+    const additionalParams = {
+        headers: headers
+    };
+
+    url = "https://photos-bucket-3.s3.amazonaws.com/" + file.name
+    axios.put(url, file, additionalParams).then(response => {
+       alert("Image uploaded: " + file.name);
+    });
+
 }
+
+

@@ -1,47 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Search and Upload</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        input, button { margin-top: 10px; }
-    </style>
+<html>
+    <head>
+        <link rel="stylesheet" href="index.css">
+        <script src="app.js"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        
+        <script type="text/javascript" src="./sdk-api2/lib/axios/dist/axios.standalone.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/CryptoJS/rollups/sha256.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/CryptoJS/components/hmac.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/CryptoJS/components/enc-base64.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.879.0.min.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/url-template/url-template.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/apiGatewayCore/sigV4Client.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/apiGatewayCore/apiGatewayClient.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/apiGatewayCore/simpleHttpClient.js"></script>
+        <script type="text/javascript" src="./sdk-api2/lib/apiGatewayCore/utils.js"></script>
 
-<script src="./sdk-api2/lib/axios/dist/axios.standalone.js"></script>
-<script src="./sdk-api2/lib/CryptoJS/rollups/hmac-sha256.js"></script>
-<script src="./sdk-api2/lib/CryptoJS/rollups/sha256.js"></script>
-<script src="./sdk-api2/lib/CryptoJS/components/hmac.js"></script>
-<script src="./sdk-api2/lib/CryptoJS/components/enc-base64.js"></script>
-<script src="./sdk-api2/lib/url-template/url-template.js"></script>
-<script src="./sdk-api2/lib/apiGatewayCore/sigV4Client.js"></script>
-<script src="./sdk-api2/lib/apiGatewayCore/apiGatewayClient.js"></script>
-<script src="./sdk-api2/lib/apiGatewayCore/simpleHttpClient.js"></script>
-<script src="./sdk-api2/lib/apiGatewayCore/utils.js"></script>
-
-<script src="./sdk-api2/apigClient.js"></script>
-
-<script src="./aws-sdk.min.js"></script>
-</head>
-<body>
-    <h1>Photo Search and Upload</h1>
-
-    <div>
-        <h2>Search Photos</h2>
-        <input type="text" id="searchQuery" placeholder="Enter search term...">
-        <button onclick="searchPhotos()">Search</button>
-        <div id="searchResults"></div>
-    </div>
-
-    <div>
-        <h2>Upload Photo</h2>
-        <input type="file" id="photoUpload" accept="image/*">
-        <input type="text" id="customLabels" placeholder="Enter custom labels, comma separated">
-        <button onclick="uploadPhoto()">Upload</button>
-    </div>
-
-    <!-- <script src="path/to/aws-api-gateway-sdk.js"></script> -->
-    <script src="app.js"></script>
-</body>
+        <script src="./sdk-api2/apigClient.js"></script>
+    </head>
+    <center>
+        <header class="photos_title">
+            Smart Photo Album - AWS
+        </header>
+    </center>
+    <body>
+        <div class="container-fluid">
+            <center>
+                <form action="", method="get", target="", id="search_photos">
+                    <input name="search_query" id = "search_query" type="text" placeholder="Search Photos Library" autocomplete="off" autofocus>
+                    
+                </form>
+                <p class="search_info"></p>
+                <div class="row">
+                    <button type="button" id="searchPhotos" name="searchPhotos" style="width:100px; height: 25px;" onclick="textSearch()">Search</button>
+                </div>
+            </center>
+        </div>
+        <div id="photos_search_results"></div>
+        <div class="Upload_files">
+            <h2 style="text-align: center;">Upload Photos</h2>
+            <center>
+                <form action="/action_page.php">
+                    <input type="file" id="uploaded_file" name="filename">
+                    <input type="text" id="custom_labels" name="custom_labels" placeholder="Custom labels">
+                </form>
+                <button id="upload_files" onclick="uploadPhoto()">Upload</button>
+            </center>
+            <center><p id="uploadText" style="display:hidden; font-size: 20px;"></p></center>
+        </div>
+    </body>
 </html>
