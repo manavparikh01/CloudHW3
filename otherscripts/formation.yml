@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Photo Album Web Application
+Resources:
+  FrontendBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: b1staticweb
+      WebsiteConfiguration:
+        IndexDocument: index.html
+    DependsOn:
+      - PhotoAlbumAPI
+  B2Buckets:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: my-lambda-code-bucket
+    DependsOn:
+      - IndexPhotosRole
+  IndexPhotosRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: index-photos-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: IndexPhotosLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 'rekognition:DetectLabels'
+                Resource:
+                  - 'arn:aws:rekognition:::image/*'
+  SearchPhotosRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: search-photos-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: SearchPhotosLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'es:Search'
+                  - 'lex:GetSession'
+                  - 'lex:RecognizeText'
+                Resource:
+                  - !Ref ElasticsearchDomain
+                  - 'arn:aws:lex:::bot:PhotoSearchBot'
+                  - 'arn:aws:lex:::intent:SearchIntent'
+  IndexPhotosLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !Ref B2Buckets
+        S3Key: index-photos.zip
+      Description: Index uploaded photos with labels.
+      Handler: lambda_function.lambda_handler
+      Role: !Ref IndexPhotosRole
+      Runtime: python3.9
+      Timeout: 30
+    DependsOn:
+      - IndexPhotosRole
+      - ElasticsearchDomain
+  SearchPhotosLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !Ref B2Buckets
+        S3Key: search-photos.zip
+      Description: Search photos based on user queries.
+      Handler: lambda_function.lambda_handler
+      Role: !Ref SearchPhotosRole
+      Runtime: python3.9
+      Timeout: 30
+    DependsOn:
+      - SearchPhotosRole
+      - ElasticsearchDomain
+      - SearchBot
+  ElasticsearchDomain:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainName: photos
+      ElasticsearchVersion: 7.1
+      ClusterConfig:
+        InstanceType: t3.small.search
+  SearchBot:
+    Type: 'AWS::Lex::Bot'
+    Properties:
+      Name: PhotoSearchBot
+      Intents:
+        - SearchIntent
+  PhotoAlbumAPI:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      Name: AI Photo Search 2
+      EndpointConfiguration: REGIONAL
+    DependsOn:
+      - B2Buckets
+      - SearchPhotosLambda
