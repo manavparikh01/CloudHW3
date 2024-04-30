@@ -77,8 +77,8 @@ def get_labels(query):
     try:
         # Call post_text operation for Lex V2
         response = lex_v2.recognize_text(
-            botId='LAD0SZBA6I',
-            botAliasId='TSTALIASID',
+            botId='botId',
+            botAliasId='botAliasId',
             localeId='en_US',  # Language/locale of the input text
             sessionId=user_id,
             text=query

@@ -22,11 +22,11 @@ function searchPhotos(searchText) {
 
     var additionalParams = {
         headers: {
-            'x-api-key': '6CMczQa7eN7h4a70uBTAP157xzqmBj8B3pVBGZ22'
+            'x-api-key': 'x-api-key'
         }
     };
     var apigClient = apigClientFactory.newClient({
-        apiKey: '6CMczQa7eN7h4a70uBTAP157xzqmBj8B3pVBGZ22'
+        apiKey: 'x-api-key'
     });
 
     apigClient.searchGet(params, {}, additionalParams)
@@ -66,7 +66,7 @@ function uploadPhoto() {
     var headers = {
         'Content-Type': "image/" + file.name.split('.').pop(),
         'x-amz-meta-customLabels': customLabels,
-        'x-api-key': '6CMczQa7eN7h4a70uBTAP157xzqmBj8B3pVBGZ22'
+        'x-api-key': 'x-api-key'
     };
 
 
